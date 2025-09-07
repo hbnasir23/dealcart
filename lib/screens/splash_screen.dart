@@ -90,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen>
       controllers[i].repeat(reverse: true);
     }
 
-    Future.delayed(const Duration(seconds: 6), () {
+    Future.delayed(const Duration(seconds: 4), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(

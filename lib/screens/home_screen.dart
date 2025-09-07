@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/product_provider.dart';
@@ -18,13 +17,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<String> _searchHints = ["Search Piyaaz", "Search Aalu", "Search Oil"];
+  final List<String> _searchHints = ["Search Piyaaz", "Search Aalu", "Search Oil", "Search Rozana"];
 
   final ScrollController _topCategoryController = ScrollController();
   final ScrollController _shopCategoryController = ScrollController();
   double _shopCategoryScrollPosition = 0;
-
-  String selectedCategory = "all";
 
   @override
   void initState() {
@@ -45,22 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _filterByCategory(String category) {
-    setState(() {
-      selectedCategory = category;
-    });
-    Provider.of<ProductProvider>(context, listen: false).getProductsByCategory(category);
-  }
-
-  Color _getTopBackgroundColor() {
-    if (selectedCategory == "all") return Colors.grey[200]!;
-
-    final category = AppCategories.findCategoryByName(selectedCategory);
-    return category != null
-        ? (category["color"] as Color).withOpacity(0.1)
-        : Colors.grey[200]!;
-  }
-
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
@@ -68,11 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ? _shopCategoryController.position.maxScrollExtent
         : 1;
 
-    final categoryProducts = selectedCategory == "all"
-        ? productProvider.products
-        : productProvider.products.where((product) => product.category == selectedCategory).toList();
-
-    final selectedCategoryColor = _getTopBackgroundColor();
+    final selectedCategory = productProvider.selectedCategory;
+    final categoryProducts = productProvider.products;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -80,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             Container(
-              color: _getTopBackgroundColor(),
+              color: _getTopBackgroundColor(selectedCategory),
               child: Column(
                 children: [
                   const HomeHeader(),
@@ -88,8 +66,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   TopCategoriesSection(
                     categories: AppCategories.allCategories,
                     selectedCategory: selectedCategory,
-                    selectedCategoryColor: selectedCategoryColor,
-                    onCategorySelected: _filterByCategory,
+                    selectedCategoryColor: _getTopBackgroundColor(selectedCategory),
+                    onCategorySelected: (category) {
+                      productProvider.filterByCategory(category);
+                    },
                     scrollController: _topCategoryController,
                   ),
                 ],
@@ -121,12 +101,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             childAspectRatio: 0.9,
                           ),
                           children: AppCategories.allCategories.map((category) =>
-                          ShopCategoryItem(
-                            icon: category["icon"],
-                            label: category["name"],
-                            color: category["color"],
-                            onTap: () => _filterByCategory(category["name"]),
-                          )
+                              ShopCategoryItem(
+                                icon: category["icon"],
+                                label: category["name"],
+                                color: category["color"],
+                                onTap: () => productProvider.filterByCategory(category["name"]),
+                              )
                           ).toList(),
                         ),
                       ),
@@ -158,13 +138,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             final product = categoryProducts[index];
                             return Container(
                               width: 170,
-                              margin: EdgeInsets.only(right: 12, left: index == 0 ? 16 : 0),
+                              margin: EdgeInsets.only(
+                                  right: 12,
+                                  left: index == 0 ? 16 : 0,
+                                  bottom: 16),
                               child: ProductCard(product: product),
                             );
                           },
                         ),
                       ),
-
 
                       const Padding(
                         padding: EdgeInsets.all(16.0),
@@ -199,5 +181,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Color _getTopBackgroundColor(String selectedCategory) {
+    if (selectedCategory == "all") return Colors.grey[200]!;
+
+    final category = AppCategories.findCategoryByName(selectedCategory);
+    return category != null
+        ? (category["color"] as Color).withOpacity(0.1)
+        : Colors.grey[200]!;
   }
 }

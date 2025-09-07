@@ -14,6 +14,17 @@ class ProductProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get selectedCategory => _selectedCategory;
 
+  void filterByCategory(String category) {
+    _selectedCategory = category;
+    if (category == "all") {
+      _filteredProducts = _products;
+    } else {
+      _filteredProducts = _products.where((product) =>
+      product.category?.toLowerCase() == category.toLowerCase()).toList();
+    }
+    notifyListeners();
+  }
+
   Future<void> getProducts() async {
     _isLoading = true;
     notifyListeners();

@@ -40,7 +40,7 @@ class BottomNavBar extends StatelessWidget {
           selectedItemColor: Colors.black,
           unselectedItemColor: Colors.black,
           selectedIconTheme: const IconThemeData(
-            color: Color(0xFF5E35B1),
+            color: Color(0xFF1C2F79),
             size: 28,
           ),
           unselectedIconTheme: const IconThemeData(
